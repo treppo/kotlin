@@ -21,7 +21,7 @@ class Application(configuration: Configuration) {
             get("/") {
                 val yorckRatingsService = YorckRatingsService(AsyncYorckWebsite(configuration.yorckUrl))
                 val deferred = async(CommonPool) { yorckRatingsService.getYorckRatings() }
-                call.respondText(deferred.await().joinToString("\n"), Html)
+                call.respondText(deferred.await().map { it.yorckTitle }.joinToString("\n"), Html)
             }
         }
     }
