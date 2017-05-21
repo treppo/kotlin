@@ -1,6 +1,7 @@
 package yorck_ratings
 
-import com.github.kittinunf.fuel.httpGet
+import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.async
 import org.jetbrains.ktor.application.Application
 import org.jetbrains.ktor.application.call
 import org.jetbrains.ktor.application.install
@@ -20,8 +21,8 @@ class Application(configuration: Configuration) {
 
         routing {
             get("/") {
-                val (_, _, result) = configuration.yorckUrl.httpGet().responseString()
-                call.respondText(result.get(), Html)
+                val deferred = async(CommonPool) { YorckRatingsService(configuration).getYorckRatings() }
+                call.respondText(deferred.await(), Html)
             }
         }
     }
