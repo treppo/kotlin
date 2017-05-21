@@ -48,7 +48,6 @@ dependencies {
     testCompile "org.jetbrains.spek:spek-api:$spek_version"
     testCompile "com.natpryce:hamkrest:1.4.0.0"
     testCompile "com.github.tomakehurst:wiremock:2.6.0"
-    testCompile "com.nhaarman:mockito-kotlin:1.4.0"
 }
 
 kotlin {
