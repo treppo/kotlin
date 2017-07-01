@@ -11,10 +11,7 @@ import org.jetbrains.ktor.http.HttpMethod
 import org.jetbrains.ktor.http.HttpStatusCode
 import org.jetbrains.ktor.testing.handleRequest
 import org.jetbrains.ktor.testing.withTestApplication
-import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.describe
-import org.jetbrains.spek.api.dsl.it
-import org.jetbrains.spek.api.dsl.on
+import org.junit.Test
 
 fun <T> withMockServer(block: (WireMockServer) -> T): T {
     val mockServer = WireMockServer(wireMockConfig().dynamicPort())
@@ -29,21 +26,18 @@ fun <T> withMockServer(block: (WireMockServer) -> T): T {
     }
 }
 
-object ApplicationSpec : Spek({
-    describe("the main application") {
-        on("request to root path") {
-            it("responds with a message") {
-                withMockServer { mockServer: WireMockServer ->
-                    val yorckUrl = "http://localhost:${mockServer.port()}/yorck"
-                    withTestApplication(Application(Configuration(yorckUrl))::module.get()) {
-                        with(handleRequest(HttpMethod.Get, "/")) {
-                            assert.that(response.status(), equalTo(HttpStatusCode.OK))
-                            assert.that(response.content!!, containsSubstring("Arrival"))
-                            assert.that(response.content!!, containsSubstring("Alien Covenant"))
-                        }
-                    }
+class ApplicationTest {
+    @Test
+    fun ratingsAreShown() {
+        withMockServer { mockServer: WireMockServer ->
+            val yorckUrl = "http://localhost:${mockServer.port()}/yorck"
+            withTestApplication(Application(Configuration(yorckUrl))::module.get()) {
+                with(handleRequest(HttpMethod.Get, "/")) {
+                    assert.that(response.status(), equalTo(HttpStatusCode.OK))
+                    assert.that(response.content!!, containsSubstring("Arrival"))
+                    assert.that(response.content!!, containsSubstring("Alien Covenant"))
                 }
             }
         }
     }
-})
+}

@@ -1,22 +1,23 @@
 buildscript {
-    ext.kotlin_version = '1.1.3'
-    ext.junit_platform_version = "1.0.0-M4"
+    ext {
+        kotlin_version = '1.1.3'
+    }
 
     repositories {
         mavenCentral()
     }
+
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "org.junit.platform:junit-platform-gradle-plugin:$junit_platform_version"
     }
 }
 
 plugins {
     id "application"
     id "org.jetbrains.kotlin.jvm" version "1.1.2-2"
+    id 'com.github.ben-manes.versions' version '0.15.0'
 }
 
-apply plugin: "org.junit.platform.gradle.plugin"
 apply plugin: 'kotlin'
 
 group "org.treppo"
@@ -30,24 +31,20 @@ repositories {
     jcenter()
     maven { url "https://dl.bintray.com/kotlin/kotlinx" }
     maven { url "https://dl.bintray.com/kotlin/ktor" }
-    maven { url "http://dl.bintray.com/jetbrains/spek" }
 }
 
 dependencies {
-    def ktor_version = "0.3.2"
-    def spek_version = "1.1.1"
+    def ktor_version = "0.3.3"
 
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
     compile "org.jetbrains.ktor:ktor-netty:$ktor_version"
-    compile "com.github.kittinunf.fuel:fuel:1.7.0"
+    compile "com.github.kittinunf.fuel:fuel:1.8.0"
     compile "com.github.kittinunf.result:result:1.1.0"
-    compile "org.jsoup:jsoup:1.10.2"
+    compile "org.jsoup:jsoup:1.10.3"
 
+    testCompile "junit:junit:4.12"
     testCompile "org.jetbrains.ktor:ktor-test-host:$ktor_version"
-    testRuntime "org.jetbrains.spek:spek-junit-platform-engine:$spek_version"
-    testRuntime "org.junit.platform:junit-platform-launcher:$junit_platform_version"
-    testCompile "org.jetbrains.spek:spek-api:$spek_version"
-    testCompile "com.natpryce:hamkrest:1.4.0.0"
+    testCompile "com.natpryce:hamkrest:1.4.1.0"
     testCompile "com.github.tomakehurst:wiremock:2.6.0"
 }
 
@@ -63,13 +60,6 @@ compileKotlin {
     }
 }
 
-junitPlatform {
-    filters {
-        engines {
-            include "spek"
-        }
-    }
-}
 compileTestKotlin {
     kotlinOptions {
         jvmTarget = "1.8"
