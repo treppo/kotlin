@@ -7,5 +7,5 @@ object YorckInfoParser {
             Jsoup
                     .parse(html)
                     .select(".movie-info .movie-details h2")
-                    .map { element -> YorckInfo(element.text()) }
+                    .map { YorckInfo(it.text()) }
 }

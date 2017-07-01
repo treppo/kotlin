@@ -19,7 +19,7 @@ class Application(configuration: Configuration) {
 
         routing {
             get("/") {
-                val yorckRatingsService = YorckRatingsService(AsyncYorckWebsite(configuration.yorckUrl))
+                val yorckRatingsService = YorckRatings(AsyncYorck(configuration.yorckUrl), AsyncImdb(configuration.imdbSearchUrl))
                 val deferredRatings = async(CommonPool) { yorckRatingsService.getYorckRatings() }
                 call.respondText(view(deferredRatings.await()), Html)
             }
@@ -51,4 +51,4 @@ fun view(yorckRatings: List<YorckRating>): String =
 </html>
 """
 
-fun listItem(yorckRating: YorckRating): String = """<li>${yorckRating.yorckTitle}</li>"""
+fun listItem(yorckRating: YorckRating): String = """<li>${yorckRating.imdbTitle} • ${yorckRating.yorckTitle}</li>"""

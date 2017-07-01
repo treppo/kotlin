@@ -13,10 +13,17 @@ import org.jetbrains.ktor.testing.handleRequest
 import org.jetbrains.ktor.testing.withTestApplication
 import org.junit.Test
 
-fun <T> withMockServer(block: (WireMockServer) -> T): T {
+private fun <T> withMockServer(block: (WireMockServer) -> T): T {
+    fun readFile(file: String) = block.javaClass.getResource(file).readText()
     val mockServer = WireMockServer(wireMockConfig().dynamicPort())
-    val resource = block.javaClass.getResource("/yorck-response.html").readText()
-    mockServer.stubFor(get("/yorck").willReturn(ok(resource)))
+    val yorckResponse = readFile("/yorck-response.html")
+    val imdbSearchArrivalResponse = readFile("/imdb-search-arrival-response.html")
+    val imdbSearchAlienResponse = readFile("/imdb-search-alien-response.html")
+
+    mockServer.stubFor(get("/yorck").willReturn(ok(yorckResponse)))
+    mockServer.stubFor(get("/imdb-search?Arrival").willReturn(ok(imdbSearchArrivalResponse)))
+    mockServer.stubFor(get("/imdb-search?Alien%20Covenant").willReturn(ok(imdbSearchAlienResponse)))
+
     mockServer.start()
 
     try {
@@ -26,16 +33,19 @@ fun <T> withMockServer(block: (WireMockServer) -> T): T {
     }
 }
 
+
 class ApplicationTest {
     @Test
     fun ratingsAreShown() {
         withMockServer { mockServer: WireMockServer ->
-            val yorckUrl = "http://localhost:${mockServer.port()}/yorck"
-            withTestApplication(Application(Configuration(yorckUrl))::module.get()) {
+            val configuration = Configuration(
+                    yorckUrl = "http://localhost:${mockServer.port()}/yorck",
+                    imdbSearchUrl = "http://localhost:${mockServer.port()}/imdb-search?")
+            withTestApplication(Application(configuration)::module.get()) {
                 with(handleRequest(HttpMethod.Get, "/")) {
                     assert.that(response.status(), equalTo(HttpStatusCode.OK))
-                    assert.that(response.content!!, containsSubstring("Arrival"))
-                    assert.that(response.content!!, containsSubstring("Alien Covenant"))
+                    assert.that(response.content!!, containsSubstring("Arrival • Arrival"))
+                    assert.that(response.content!!, containsSubstring("Alien: Covenant • Alien Covenant"))
                 }
             }
         }
