@@ -3,24 +3,22 @@ package yorck_ratings
 import org.jsoup.Jsoup
 import java.util.concurrent.CompletableFuture
 
-data class ImdbSearchInfo(val title: String)
-
 interface Imdb {
-    fun getSearchInfo(title: String): CompletableFuture<ImdbSearchInfo?>
+    fun getSearchInfo(title: String): CompletableFuture<Result>
 }
 
 class AsyncImdb(private val imdbSearchUrl: String) : Imdb {
-    override fun getSearchInfo(title: String): CompletableFuture<ImdbSearchInfo?> =
+    override fun getSearchInfo(title: String): CompletableFuture<Result> =
             Http.getAsync(imdbSearchUrl + title)
-                    .thenApply { ImdbSearchParser.parse(it) }
+                    .thenApply { ImdbParser.parse(it) }
 
 }
 
-object ImdbSearchParser {
-    fun parse(html: String): ImdbSearchInfo? =
+object ImdbParser {
+    fun parse(html: String): Result =
             Jsoup
                     .parse(html)
                     .select(".poster .title a")
-                    .map { ImdbSearchInfo(it.text()) }
-                    .firstOrNull()
+                    .map { Result(imdbTitle = it.text()) }
+                    .firstOrNull() ?: Result()
 }

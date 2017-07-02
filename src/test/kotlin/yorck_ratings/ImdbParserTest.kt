@@ -4,18 +4,18 @@ import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import org.junit.Test
 
-class ImdbSearchParserTest {
+class ImdbParserTest {
     @Test
     fun extractNothingFromEmptyHtml() {
         val emptyHtml = ""
 
-        assertThat(ImdbSearchParser.parse(emptyHtml), equalTo<ImdbSearchInfo>(null))
+        assertThat(ImdbParser.parse(emptyHtml), equalTo(Result()))
     }
 
     @Test
     fun extractMovieTitleFromHtml() {
         val html = javaClass.getResource("/imdb-search-arrival-response.html").readText()
 
-        assertThat(ImdbSearchParser.parse(html), equalTo(ImdbSearchInfo("Arrival")))
+        assertThat(ImdbParser.parse(html), equalTo(Result(imdbTitle = "Arrival")))
     }
 }

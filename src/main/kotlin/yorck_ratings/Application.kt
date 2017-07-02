@@ -29,7 +29,7 @@ fun main(args: Array<String>) {
     embeddedServer(Netty, 8080, module = application::module.get()).start(wait = true)
 }
 
-private fun view(yorckRatings: List<YorckRating>): String =
+private fun view(results: List<Result>): String =
         """
 <!doctype html>
 <html lang="en">
@@ -42,10 +42,10 @@ private fun view(yorckRatings: List<YorckRating>): String =
     </head>
     <body>
         <ol>
-            ${yorckRatings.map { listItem(it) }.joinToString("\n")}
+            ${results.map { listItem(it) }.joinToString("\n")}
         </ol>
     </body>
 </html>
 """
 
-private fun listItem(yorckRating: YorckRating): String = """<li>${yorckRating.imdbTitle} • ${yorckRating.yorckTitle}</li>"""
+private fun listItem(result: Result): String = """<li>${result.imdbTitle} • ${result.yorckTitle}</li>"""

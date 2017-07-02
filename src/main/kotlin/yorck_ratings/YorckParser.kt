@@ -2,10 +2,10 @@ package yorck_ratings
 
 import org.jsoup.Jsoup
 
-object YorckInfoParser {
-    fun parse(html: String): List<YorckInfo> =
+object YorckParser {
+    fun parse(html: String): List<Result> =
             Jsoup
                     .parse(html)
                     .select(".movie-info .movie-details h2")
-                    .map { YorckInfo(it.text()) }
+                    .map { Result(yorckTitle = it.text()) }
 }

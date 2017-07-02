@@ -3,19 +3,17 @@ package yorck_ratings
 import java.util.concurrent.CompletableFuture
 import java.util.stream.Collectors
 
-data class YorckRating(val yorckTitle: String, val imdbTitle: String)
+data class Result(val yorckTitle: String = "_", val imdbTitle: String = "_")
 
 class YorckRatings(private val yorck: Yorck, val imdb: Imdb) {
-    fun fetch(): CompletableFuture<List<YorckRating>> =
+    fun fetch(): CompletableFuture<List<Result>> =
             yorck.getInfos()
                     .thenCompose { toRatings(it) }
-                    .thenApply { it.filterNotNull() }
 
-    private fun toRatings(yorckInfos: List<YorckInfo>): CompletableFuture<List<YorckRating?>> {
-        return allAsList(yorckInfos.map { (title) ->
-            imdb.getSearchInfo(title).thenApply { searchInfo ->
-                if (searchInfo != null) YorckRating(title, searchInfo.title)
-                else null
+    private fun toRatings(yorckInfos: List<Result>): CompletableFuture<List<Result>> {
+        return allAsList(yorckInfos.map { rating ->
+            imdb.getSearchInfo(rating.yorckTitle).thenApply { searchInfo ->
+                rating.copy(imdbTitle = searchInfo.imdbTitle)
             }
         })
     }
