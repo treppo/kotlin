@@ -17,8 +17,11 @@ class Application(configuration: Configuration) {
 
         routing {
             get("/") {
-                val yorckRatings = YorckRatings(AsyncYorck(configuration.yorckUrl), AsyncImdb(configuration.imdbSearchUrl))
-                call.respondText(view(yorckRatings.fetch().join()), Html)
+                val yorckRatings =
+                        YorckRatings(
+                                AsyncYorck(configuration.yorckUrl, Http::getAsync),
+                                AsyncImdb(configuration.imdbSearchUrl, configuration.imdbUrl, Http::getAsync))
+                call.respondText(view(yorckRatings.fetch()), Html)
             }
         }
     }
@@ -42,10 +45,10 @@ private fun view(results: List<Result>): String =
     </head>
     <body>
         <ol>
-            ${results.map { listItem(it) }.joinToString("\n")}
+            ${results.map { it.asListItem() }.joinToString("\n")}
         </ol>
     </body>
 </html>
 """
 
-private fun listItem(result: Result): String = """<li>${result.imdbTitle} • ${result.yorckTitle}</li>"""
+fun Result.asListItem(): String = """<li><a href="${this.imdbUrl}">${this.imdbTitle}</a> • ${this.yorckTitle}</li>"""
