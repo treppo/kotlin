@@ -1,7 +1,5 @@
 package yorck_ratings
 
-import kotlinx.coroutines.experimental.CommonPool
-import kotlinx.coroutines.experimental.async
 import org.jetbrains.ktor.application.Application
 import org.jetbrains.ktor.application.call
 import org.jetbrains.ktor.application.install
@@ -19,9 +17,8 @@ class Application(configuration: Configuration) {
 
         routing {
             get("/") {
-                val yorckRatingsService = YorckRatings(AsyncYorck(configuration.yorckUrl), AsyncImdb(configuration.imdbSearchUrl))
-                val deferredRatings = async(CommonPool) { yorckRatingsService.getYorckRatings() }
-                call.respondText(view(deferredRatings.await()), Html)
+                val yorckRatings = YorckRatings(AsyncYorck(configuration.yorckUrl), AsyncImdb(configuration.imdbSearchUrl))
+                call.respondText(view(yorckRatings.fetch().join()), Html)
             }
         }
     }
@@ -32,8 +29,8 @@ fun main(args: Array<String>) {
     embeddedServer(Netty, 8080, module = application::module.get()).start(wait = true)
 }
 
-fun view(yorckRatings: List<YorckRating>): String =
-"""
+private fun view(yorckRatings: List<YorckRating>): String =
+        """
 <!doctype html>
 <html lang="en">
     <head>
@@ -51,4 +48,4 @@ fun view(yorckRatings: List<YorckRating>): String =
 </html>
 """
 
-fun listItem(yorckRating: YorckRating): String = """<li>${yorckRating.imdbTitle} • ${yorckRating.yorckTitle}</li>"""
+private fun listItem(yorckRating: YorckRating): String = """<li>${yorckRating.imdbTitle} • ${yorckRating.yorckTitle}</li>"""
